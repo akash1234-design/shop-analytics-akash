@@ -1,6 +1,5 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDfrkwScUmDy-Mv-Q69X7St-7Jf-x2s",
@@ -8,11 +7,10 @@ const firebaseConfig = {
   projectId: "shop-analytics-6d9df",
   storageBucket: "shop-analytics-6d9df.firebasestorage.app",
   messagingSenderId: "945328272719",
-  appId: "1:945328272719:web:f6cbb6eb4c1be0ee9d6a"  // ← Yaha 'a' small kiya
+  appId: "1:945328272719:web:f6cbb6eb4c1be0ee9d6a"
 };
 
-const app = initializeApp(firebaseConfig);
+console.log("Firebase Config:", firebaseConfig); // ← Ye line add kar
 
+const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
-export default app;
