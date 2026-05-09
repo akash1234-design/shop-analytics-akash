@@ -8,14 +8,13 @@ function Dashboard({ user }) {
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [newSale, setNewSale] = useState({ month: '', sales: '', profit: '', orders: '' });
+  const [newSale, setNewSale] = useState({ month: '', sales: '', profit: '', orders: '', customers: '' });
 
-  // Sign Out Function
   const handleSignOut = () => {
     signOut(auth);
   };
 
-  // Data Fetch Karna
+  // Data Fetch Karna - userId check hata diya
   const fetchSalesData = async () => {
     setLoading(true);
     try {
@@ -25,6 +24,7 @@ function Dashboard({ user }) {
         id: doc.id,
         ...doc.data()
       }));
+      console.log("Fetched data:", data); // Console me check karne ke liye
       setSalesData(data);
     } catch (error) {
       console.error("Error fetching data: ", error);
@@ -41,12 +41,13 @@ function Dashboard({ user }) {
         sales: Number(newSale.sales),
         profit: Number(newSale.profit),
         orders: Number(newSale.orders),
-        userId: user.uid,
+        customers: Number(newSale.customers),
         createdAt: new Date()
+        // userId hata diya taaki purana data bhi dikhe
       });
-      setNewSale({ month: '', sales: '', profit: '', orders: '' });
+      setNewSale({ month: '', sales: '', profit: '', orders: '', customers: '' });
       setShowForm(false);
-      fetchSalesData(); // Data refresh kar
+      fetchSalesData();
     } catch (error) {
       console.error("Error adding document: ", error);
       alert('Data add nahi hua. Console check kar.');
@@ -57,10 +58,10 @@ function Dashboard({ user }) {
     fetchSalesData();
   }, []);
 
-  // Total Calculate Karna
   const totalSales = salesData.reduce((sum, item) => sum + (item.sales || 0), 0);
   const totalProfit = salesData.reduce((sum, item) => sum + (item.profit || 0), 0);
   const totalOrders = salesData.reduce((sum, item) => sum + (item.orders || 0), 0);
+  const totalCustomers = salesData.reduce((sum, item) => sum + (item.customers || 0), 0);
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', background: '#f5f5f5', minHeight: '100vh' }}>
@@ -99,19 +100,23 @@ function Dashboard({ user }) {
       {/* Main Content */}
       <div style={{ padding: '30px' }}>
         
-        {/* Stats Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        {/* Stats Cards - 4 Card ab */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
           <div style={{ background: 'white', padding: '25px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <h3 style={{ margin: '0 0 10px 0', color: '#666', fontSize: '14px' }}>TOTAL SALES</h3>
-            <p style={{ margin: 0, fontSize: '32px', fontWeight: 'bold', color: '#0088FE' }}>₹{totalSales.toLocaleString()}</p>
+            <p style={{ margin: 0, fontSize: '28px', fontWeight: 'bold', color: '#0088FE' }}>₹{totalSales.toLocaleString()}</p>
           </div>
           <div style={{ background: 'white', padding: '25px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <h3 style={{ margin: '0 0 10px 0', color: '#666', fontSize: '14px' }}>TOTAL PROFIT</h3>
-            <p style={{ margin: 0, fontSize: '32px', fontWeight: 'bold', color: '#00C49F' }}>₹{totalProfit.toLocaleString()}</p>
+            <p style={{ margin: 0, fontSize: '28px', fontWeight: 'bold', color: '#00C49F' }}>₹{totalProfit.toLocaleString()}</p>
           </div>
           <div style={{ background: 'white', padding: '25px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <h3 style={{ margin: '0 0 10px 0', color: '#666', fontSize: '14px' }}>TOTAL ORDERS</h3>
-            <p style={{ margin: 0, fontSize: '32px', fontWeight: 'bold', color: '#FFBB28' }}>{totalOrders.toLocaleString()}</p>
+            <p style={{ margin: 0, fontSize: '28px', fontWeight: 'bold', color: '#FFBB28' }}>{totalOrders.toLocaleString()}</p>
+          </div>
+          <div style={{ background: 'white', padding: '25px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#666', fontSize: '14px' }}>CUSTOMERS</h3>
+            <p style={{ margin: 0, fontSize: '28px', fontWeight: 'bold', color: '#FF8042' }}>{totalCustomers.toLocaleString()}</p>
           </div>
         </div>
 
@@ -135,10 +140,10 @@ function Dashboard({ user }) {
         {/* Add Form */}
         {showForm && (
           <form onSubmit={handleAddSale} style={{ background: 'white', padding: '25px', borderRadius: '10px', marginBottom: '30px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px' }}>
               <input 
                 type="text" 
-                placeholder="Month - Jan 2024" 
+                placeholder="Month - 2024-01" 
                 value={newSale.month}
                 onChange={(e) => setNewSale({...newSale, month: e.target.value})}
                 required
@@ -165,6 +170,14 @@ function Dashboard({ user }) {
                 placeholder="Total Orders" 
                 value={newSale.orders}
                 onChange={(e) => setNewSale({...newSale, orders: e.target.value})}
+                required
+                style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
+              />
+              <input 
+                type="number" 
+                placeholder="Customers" 
+                value={newSale.customers}
+                onChange={(e) => setNewSale({...newSale, customers: e.target.value})}
                 required
                 style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '5px' }}
               />
@@ -201,7 +214,7 @@ function Dashboard({ user }) {
             </div>
 
             <div style={{ background: 'white', padding: '25px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <h3 style={{ marginTop: 0 }}>Monthly Orders</h3>
+              <h3 style={{ marginTop: 0 }}>Orders vs Customers</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={salesData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -210,6 +223,7 @@ function Dashboard({ user }) {
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="orders" fill="#FFBB28" name="Orders" />
+                  <Bar dataKey="customers" fill="#FF8042" name="Customers" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
