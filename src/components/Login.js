@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup 
 } from "firebase/auth";
-import { auth } from "./firebase"; // Tera firebase config import
-import './Login.css'; // Optional CSS file
+import { auth } from "../firebase"; // firebase.js src folder me hai to ../ use kar
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const googleProvider = new GoogleAuthProvider();
@@ -19,137 +18,116 @@ function Login() {
   // Login Function
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
     
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      console.log("Login Success");
-      // Redirect hoga automatically agar App.js me onAuthStateChanged laga hai
     } catch (err) {
-      console.log("Login Error:", err.message);
-      if (err.code === 'auth/user-not-found') {
-        setError('Ye email register nahi hai. Sign Up karo pehle.');
-      } else if (err.code === 'auth/wrong-password') {
-        setError('Password galat hai.');
-      } else if (err.code === 'auth/invalid-email') {
-        setError('Email sahi nahi hai.');
+      if (err.code === "auth/user-not-found") {
+        setError("Ye email register nahi hai. Sign Up karo pehle.");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Password galat hai.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Email sahi nahi hai.");
       } else {
-        setError('Login failed. Dobara try karo.');
+        setError("Login failed. Dobara try karo.");
       }
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   // Signup Function
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     if (password.length < 6) {
-      setError('Password kam se kam 6 characters ka hona chahiye.');
+      setError("Password kam se kam 6 characters ka hona chahiye.");
       setLoading(false);
       return;
     }
     
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      console.log("Signup Success");
     } catch (err) {
-      console.log("Signup Error:", err.message);
-      if (err.code === 'auth/email-already-in-use') {
-        setError('Ye email pehle se use me hai. Login karo.');
-      } else if (err.code === 'auth/weak-password') {
-        setError('Password bahut weak hai. Strong password daalo.');
+      if (err.code === "auth/email-already-in-use") {
+        setError("Ye email pehle se use me hai. Login karo.");
+      } else if (err.code === "auth/weak-password") {
+        setError("Password weak hai. Strong password daalo.");
       } else {
-        setError('Signup failed. Dobara try karo.');
+        setError("Signup failed. Dobara try karo.");
       }
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   // Google Login Function
   const handleGoogleLogin = async () => {
-    setError('');
+    setError("");
     setLoading(true);
     
     try {
       await signInWithPopup(auth, googleProvider);
-      console.log("Google Login Success");
     } catch (err) {
-      console.log("Google Error:", err.message);
-      setError('Google se login nahi ho paya. Dobara try karo.');
-    } finally {
-      setLoading(false);
+      setError("Google se login nahi ho paya. Dobara try karo.");
     }
+    setLoading(false);
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h2>ShopAnalytics Login</h2>
-        
-        <button 
-          onClick={handleGoogleLogin} 
-          disabled={loading}
-          className="google-btn"
-        >
-          <img 
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
-            alt="Google" 
-            width="20"
-          />
-          Continue with Google
-        </button>
+    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
+      <h2>ShopAnalytics Login</h2>
+      
+      <button 
+        onClick={handleGoogleLogin} 
+        disabled={loading}
+        style={{ width: "100%", padding: "12px", marginBottom: "20px" }}
+      >
+        Continue with Google
+      </button>
 
-        <div className="divider">
-          <span>OR</span>
+      <div style={{ textAlign: "center", margin: "20px 0" }}>OR</div>
+
+      <form>
+        <input 
+          type="email" 
+          placeholder="Email daalo"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
+          required
+        />
+        <input 
+          type="password" 
+          placeholder="Password daalo"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
+          required
+        />
+
+        {error && <p style={{ color: "red", fontSize: "14px" }}>{error}</p>}
+
+        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+          <button 
+            onClick={handleLogin} 
+            disabled={loading}
+            style={{ flex: 1, padding: "12px", background: "#4CAF50", color: "white", border: "none" }}
+          >
+            {loading ? "Loading..." : "Login"}
+          </button>
+          
+          <button 
+            onClick={handleSignup} 
+            disabled={loading}
+            style={{ flex: 1, padding: "12px", background: "#2196F3", color: "white", border: "none" }}
+          >
+            {loading ? "Loading..." : "Sign Up"}
+          </button>
         </div>
-
-        <form>
-          <input 
-            type="email" 
-            placeholder="Email daalo"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input 
-            type="password" 
-            placeholder="Password daalo"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          {error && <p className="error-msg">{error}</p>}
-
-          <div className="btn-group">
-            <button 
-              onClick={handleLogin} 
-              disabled={loading}
-              className="login-btn"
-            >
-              {loading ? 'Loading...' : 'Login'}
-            </button>
-            
-            <button 
-              onClick={handleSignup} 
-              disabled={loading}
-              className="signup-btn"
-            >
-              {loading ? 'Loading...' : 'Sign Up'}
-            </button>
-          </div>
-        </form>
-
-        <p className="info-text">
-          Naya user hai? Email/Password daalo aur Sign Up dabao
-        </p>
-      </div>
+      </form>
     </div>
   );
 }
